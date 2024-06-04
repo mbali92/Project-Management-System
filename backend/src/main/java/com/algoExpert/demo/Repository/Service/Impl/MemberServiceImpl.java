@@ -63,7 +63,6 @@ public class MemberServiceImpl implements MemberService {
 
         List<Member> members = userProject.getMemberList();
 
-
         // check if member exist
         boolean memberExist = members.stream()
                 .map(Member::getUser_id)

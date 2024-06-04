@@ -22,19 +22,19 @@ public class TaskMapper {
         );
     }
 
-    public static Task mapToTask(TaskDto taskDto) {
-        return new Task(
-                taskDto.getTask_id(),
-                taskDto.getTitle(),
-                taskDto.getDescription(),
-                taskDto.getUsername(),
-                taskDto.getStart_date(),
-                taskDto.getEnd_date(),
-                taskDto.getStatus(),
-                taskDto.getPriority(),
-                taskDto.getProjectName(),
-                taskDto.getComments(),
-                taskDto.getAssignees()
-        );
-    }
+//    public static Task mapToTask(TaskDto taskDto) {
+//        return new Task(
+//                taskDto.getTask_id(),
+//                taskDto.getTitle(),
+//                taskDto.getDescription(),
+//                taskDto.getUsername(),
+//                taskDto.getStart_date(),
+//                taskDto.getEnd_date(),
+//                taskDto.getStatus(),
+//                taskDto.getPriority(),
+//                taskDto.getProjectName(),
+//                taskDto.getComments(),
+//                taskDto.getAssignees()
+//        );
+//    }
 }

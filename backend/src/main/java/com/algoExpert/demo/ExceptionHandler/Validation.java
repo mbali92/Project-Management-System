@@ -18,6 +18,7 @@ import java.net.SocketException;
 import java.time.LocalTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.NoSuchElementException;
 
 @RestControllerAdvice
 public class Validation {
@@ -99,13 +100,13 @@ public class Validation {
                 .build();
     }
 
-    @ResponseStatus(HttpStatus.FORBIDDEN)
+    @ResponseStatus(HttpStatus.NOT_FOUND)
     @ExceptionHandler(InternalAuthenticationServiceException.class)
     public HttpResponse serviceException(InternalAuthenticationServiceException serviceException ,HttpServletRequest request){
         return HttpResponse.builder()
                 .timeStamp(LocalTime.now().toString())
-                .status(HttpStatus.FORBIDDEN)
-                .statusCode(HttpStatus.FORBIDDEN.value())
+                .status(HttpStatus.NOT_FOUND)
+                .statusCode(HttpStatus.NOT_FOUND.value())
                 .message("No account found for this username")
                 .developerMessage(serviceException.getMessage())
                 .urlInstance(request.getServletPath())
@@ -161,6 +162,20 @@ public class Validation {
                 .statusCode(HttpStatus.FORBIDDEN.value())
                 .message(emptyFieldNotRequired.getMessage())
                 .developerMessage("Missing inputs")
+                .urlInstance(request.getServletPath())
+                .method(request.getMethod())
+                .build();
+    }
+
+    @ResponseStatus(HttpStatus.NOT_FOUND)
+    @ExceptionHandler(NoSuchElementException.class)
+    public HttpResponse noSuchElementException(NoSuchElementException noSuchElementException , HttpServletRequest request){
+        return HttpResponse.builder()
+                .timeStamp(LocalTime.now().toString())
+                .status(HttpStatus.NOT_FOUND)
+                .statusCode(HttpStatus.NOT_FOUND.value())
+                .message("User not registered")
+                .developerMessage(noSuchElementException.getMessage())
                 .urlInstance(request.getServletPath())
                 .method(request.getMethod())
                 .build();

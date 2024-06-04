@@ -3,6 +3,7 @@ package com.algoExpert.demo.Entity;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotBlank;
 import lombok.*;
+import org.springframework.data.domain.Sort;
 
 import java.util.List;
 
@@ -21,6 +22,9 @@ public class Project {
     private String title;
 
     private String description;
+    @Transient
+    private Long tableCount;
+    private String sortDirection = Sort.Direction.ASC.name();
 
     //  relationships
     @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)

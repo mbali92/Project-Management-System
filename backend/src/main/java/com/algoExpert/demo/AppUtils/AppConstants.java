@@ -9,6 +9,7 @@ public class AppConstants {
     public final static String USERNAME_ALREADY_EXIST = "Email %s already taken";
     public final static String PROJECT_NOT_FOUND = "Project with ID %s not found";
     public final static String TASK_NOT_FOUND = "Task with ID  %s not found";
+    public final static String TABLE_NOT_FOUND = "Table with ID  %s not found";
     public final static String TOKEN_NOT_FOUND = "Token %s not found";
     public final static String ALREADY_ASSIGNED= "Member ID %s is already assigned this task";
     public final static String PASSWORD_MISMATCH = "Password not matching";

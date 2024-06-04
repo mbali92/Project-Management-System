@@ -83,7 +83,7 @@ public class ProjectServiceImpl implements ProjectService {
         members.add(newMember);
         savedProject.setMemberList(members);
         projectRepository.save(savedProject);
-        StringBuilder link = new StringBuilder(projectUrl);
+        String link = String.valueOf(projectUrl);
         // Save the updated project with the added member
         savedProject = projectRepository.save(savedProject);
 //        memberService.inviteMember(savedProject.getProject_id(),user.getUser_id());
@@ -91,7 +91,7 @@ public class ProjectServiceImpl implements ProjectService {
         String subject = "PMS Project Created Successful";
         String projectHtml = emailHtmlLayout.createProjectHtml(user.getFullName()
                 , savedProject.getTitle()
-                ,link.toString());
+                , link);
         //todo change TEMP_USER_EMAIL to user.getEmail()
         appEmailBuilder.sendEmailInvite(user.getEmail(),projectHtml,subject);
 
@@ -128,14 +128,12 @@ public class ProjectServiceImpl implements ProjectService {
 
     //    update project
     @Override
-
     public Project editProject(Project newProjectValue) throws InvalidArgument{
         return projectRepository.findById(newProjectValue.getProjectId())
                 .map(existingProject -> {
-                    if (newProjectValue != null) {
-                        Optional.ofNullable(newProjectValue.getTitle()).ifPresent(existingProject::setTitle);
-                        Optional.ofNullable(newProjectValue.getDescription()).ifPresent(existingProject::setDescription);
-                    }
+                    Optional.ofNullable(newProjectValue.getTitle()).ifPresent(existingProject::setTitle);
+                    Optional.ofNullable(newProjectValue.getDescription()).ifPresent(existingProject::setDescription);
+                    Optional.ofNullable(newProjectValue.getSortDirection()).ifPresent(existingProject::setSortDirection);
                     return projectRepository.save(existingProject);
                 }).orElseThrow(() -> new InvalidArgument("Task with ID " + newProjectValue.getProjectId() + " not found"));
 

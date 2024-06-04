@@ -19,22 +19,15 @@ import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
 
-import java.util.*;
+import static com.algoExpert.demo.AppUtils.AppConstants.TABLE_NOT_FOUND;
+import static com.algoExpert.demo.AppUtils.AppConstants.TASK_NOT_FOUND;
 
 @Slf4j
 @Service
 public class TaskServiceImpl implements TaskService {
+
     @Autowired
     private TaskRepository taskRepository;
-    @Autowired
-    private ProjectRepository projectRepository;
-
-    @PersistenceContext
-    private EntityManager entityManager;
-
-    @Autowired
-    private AssigneesRepository assigneesRepository;
-
     @Autowired
     private TableRepository tableRepository;
 
@@ -42,25 +35,17 @@ public class TaskServiceImpl implements TaskService {
     private CommentRepository commentRepository;
 
     @Autowired
-    private MemberRepository memberRepository;
-
-    @Autowired
-    private TaskMapper taskMapper;
-
-    @Autowired
     private ProjectUserImpl projectUser;
 
     @Autowired
     private  UserRepository userRepository;
-    @Autowired
-    private EmailHtmlLayout emailHtmlLayout;
 
     //    create new task
     @Override
     public TaskContainer createTask(int table_id) throws InvalidArgument {
 
         TaskContainer table = tableRepository.findById(table_id).orElseThrow(() ->
-                new InvalidArgument("TaskTable with ID " + table_id + " not found"));
+                new InvalidArgument(String.format(TASK_NOT_FOUND,table_id)));
 
         String projectName = table.getTasks()
                 .stream().map(Task::getProjectName).findFirst().orElseThrow();
@@ -74,9 +59,12 @@ public class TaskServiceImpl implements TaskService {
         }
 
         List<Task> taskList = table.getTasks();
-        int count = taskList.size() + 1;
-        Task task = new Task(0, "task " + count, ""
-                ,username, "", "", "", "",projectName, null, null);
+        Task task = Task.builder()
+                .title("Task")
+                .description("Description+")
+                .username(username)
+                .status("TODO")
+                .projectName(projectName).build();
 
         taskList.add(task);
         table.setTasks(taskList);
@@ -101,7 +89,7 @@ public class TaskServiceImpl implements TaskService {
                     Optional.ofNullable(newTask.getStatus()).map(String::toUpperCase).ifPresent(existingTask::setStatus);
                     Optional.ofNullable(newTask.getPriority()).map(String::toUpperCase).ifPresent(existingTask::setPriority);
                     return taskRepository.save(existingTask);
-                }).orElseThrow(() -> new IllegalArgumentException("task with ID " + newTask.getTask_id() + " not found"));
+                }).orElseThrow(() -> new IllegalArgumentException(String.format(TASK_NOT_FOUND,newTask.getTask_id())));
     }
 
     //duplicate task
@@ -109,11 +97,17 @@ public class TaskServiceImpl implements TaskService {
     public TaskContainer duplicateTask(Task task, Integer table_id) {
         TaskContainer table = tableRepository.findById(table_id).get();
 
-        Task newTask = new Task(0, task.getTitle(), task.getDescription(), task.getUsername(), task.getStart_date(), task.getEnd_date(), task.getStatus(),
-                task.getPriority(),task.getProjectName(), null, null);
+        Task newTask = Task.builder()
+                .title(task.getTitle())
+                .description(task.getDescription())
+                .username(task.getUsername())
+                .start_date(task.getStart_date())
+                .end_date(task.getEnd_date())
+                .status(task.getStatus())
+                .priority(task.getPriority())
+                .projectName(task.getProjectName()).build();
+
         List<Task> taskList = table.getTasks();
-
-
         taskList.add(newTask);
         table.setTasks(taskList);
         return tableRepository.save(table);
@@ -124,9 +118,9 @@ public class TaskServiceImpl implements TaskService {
     @Transactional
     public TaskContainer deleteTaskById(Integer task_id, Integer table_id) throws InvalidArgument {
         Task storedTask = taskRepository.findById(task_id).orElseThrow(() ->
-                new InvalidArgument("Task with ID " + task_id + " not found"));
+                new InvalidArgument(String.format(TASK_NOT_FOUND,task_id)));
         TaskContainer table = tableRepository.findById(table_id).orElseThrow(() ->
-                new InvalidArgument("TaskTable with ID " + table_id + " not found"));
+                new InvalidArgument(String.format(TABLE_NOT_FOUND,table_id)));
 
         List<Comment> comments = storedTask.getComments();
         if (!comments.isEmpty()) {

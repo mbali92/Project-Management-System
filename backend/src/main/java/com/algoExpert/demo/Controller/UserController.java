@@ -81,10 +81,10 @@ public class UserController {
     public ResponseEntity<Project> getProjectWithSortedAndSearchedTables(
             @PathVariable Integer projectId,
             @RequestParam(defaultValue = "0") int page,
-            @RequestParam(defaultValue = "2") int size,
+            @RequestParam(defaultValue = "3") int size,
             @RequestParam(required = false) String search,
             @RequestParam(defaultValue = "tableName") String sortField,
-            @RequestParam(defaultValue = "asc") String sortDirection) {
+            @RequestParam(defaultValue = "ASC") String sortDirection) {
 
         return userService.getProjectWithSortedAndSearchedTables(projectId,page,size,search,sortField,sortDirection);
     }

@@ -14,5 +14,5 @@ public interface TableRepository extends JpaRepository<TaskContainer, Integer> {
 
         Page<TaskContainer> findByProjectIdAndTableNameContainingIgnoreCase(Integer projectId, String tableName, Pageable pageable);
         Page<TaskContainer> findByProjectId(Integer projectId, Pageable pageable);
-
+        long countByProjectId( Integer id);
 }

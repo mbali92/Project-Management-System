@@ -17,14 +17,14 @@ public class ProjectMapper {
         );
     }
 
-    public static Project mapToProject(ProjectDto projectDto) {
-        return new Project(
-                projectDto.getProject_id(),
-                projectDto.getTitle(),
-                projectDto.getDescription(),
-                projectDto.getTables(),
-                projectDto.getMemberList(),
-                projectDto.getUser()
-        );
-    }
+//    public static Project mapToProject(ProjectDto projectDto) {
+//        return new Project(
+//                projectDto.getProject_id(),
+//                projectDto.getTitle(),
+//                projectDto.getDescription(),
+//                projectDto.getTables(),
+//                projectDto.getMemberList(),
+//                projectDto.getUser()
+//        );
+//    }
 }

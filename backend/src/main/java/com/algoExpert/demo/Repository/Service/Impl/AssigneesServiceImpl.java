@@ -93,7 +93,7 @@ public class AssigneesServiceImpl implements AssigneesService {
         String notifMsg = "You have been assigned "+storedTask.getTitle()+ " task on "+ storedTask.getProjectName() +" project";
         notificationService.createNotification(assignedUser,notifMsg);
 
-        //************************** call feature service ******************************//
+        //************************** call feature service **************************************//
         featureService.updateFeatureCount(FeatureType.ASSIGN_TASK);
 
         return saved ;

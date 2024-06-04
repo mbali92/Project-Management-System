@@ -97,27 +97,22 @@ public class ProjectUserImpl implements ProjectUserService {
             projectUser = (User) authentication.getPrincipal();
         }
 
-        //clear the roles of the user who is loading the project
+
         List<Role> roleList = Objects.requireNonNull(projectUser).getRoles();
         roleList.clear();
-        log.info("clear roles:{} ",roleList);
-//        //assign the role of the user that all users should have
+
         roleList.add(Role.valueOf(USER_ROLE));
-        log.info("add roles:{} ",roleList);
         for (Member member : foundProject.getMemberList() ){
             if(member.getProjectRole().equals(OWNER_ROLE) && member.getUser_id().equals(projectUser.getUser_id()) ){
-                //find if the member has a role of an onwer and assign owner role if you find
+
                 roleList.add(Role.valueOf(OWNER_ROLE));
             }
             else if(member.getUser_id().equals(projectUser.getUser_id()) && member.getProjectRole().equals(MEMBER_ROLE)){
-                //assign role of a member if you find the id matching the user id who is loading the project
                 roleList.add(Role.valueOf(MEMBER_ROLE));
             }
         }
         projectUser.setRoles(roleList);
-
         userRepository.save(projectUser);
-
         getSortedAndSearchedTables(foundProject,page,size,search,sortField,sortDirection);
         return ResponseEntity.ok(foundProject);
     }
@@ -147,19 +142,17 @@ public class ProjectUserImpl implements ProjectUserService {
 
     public void getSortedAndSearchedTables(Project project, int page, int size, String search, String sortField, String sortDirection){
 
-        Sort.Direction direction = sortDirection.equalsIgnoreCase("desc") ? Sort.Direction.DESC : Sort.Direction.ASC;
+        Sort.Direction direction = sortDirection.equalsIgnoreCase("DESC") ? Sort.Direction.DESC : Sort.Direction.ASC;
         Sort sort = Sort.by(direction, sortField);
         Pageable pageable = PageRequest.of(page, size, sort);
 
         List<TaskContainer> tables;
 
-        if (search != null) {
-            tables = tableRepository.findByProjectIdAndTableNameContainingIgnoreCase(project.getProjectId(),search,pageable).toList();
+        tables = (search != null) ?
+                tableRepository.findByProjectIdAndTableNameContainingIgnoreCase(project.getProjectId(),search,pageable).getContent() :
+                tableRepository.findByProjectId(project.getProjectId(),pageable).getContent();
 
-        } else {
-            tables = tableRepository.findByProjectId(project.getProjectId(),pageable).toList();;
-        }
-
+        project.setTableCount(tableRepository.countByProjectId(project.getProjectId()));
         project.setTables(tables);
     }
 

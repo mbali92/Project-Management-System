@@ -19,6 +19,8 @@ import org.springframework.stereotype.Service;
 import java.util.ArrayList;
 import java.util.List;
 
+import static com.algoExpert.demo.AppUtils.AppConstants.PROJECT_NOT_FOUND;
+
 @Service
 public class TableServiceImpl implements TableService {
 
@@ -42,7 +44,7 @@ public class TableServiceImpl implements TableService {
     //  create a new table
     @Override
     public ProjectDto createTable(int project_id) throws InvalidArgument {
-        Project project = projectRepository.findById(project_id).orElseThrow(() -> new InvalidArgument("Project with ID " + project_id + " not found"));
+        Project project = projectRepository.findById(project_id).orElseThrow(() -> new InvalidArgument(String.format(PROJECT_NOT_FOUND,project_id)));
 
         List<TaskContainer> tables = project.getTables();
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -52,10 +54,19 @@ public class TableServiceImpl implements TableService {
             projectUser = (User) authentication.getPrincipal();
         }
 
-//        int count = project.getTables().size();
-        TaskContainer table = new TaskContainer(0, "Table", project_id,null);
-        Task task = new Task(0, "task", "description",project.getUser().getFullName(), "","", "", "", project.getTitle(), null,null);
+        int tableIndex = project.getTables().size()+1;
+        String tableIndexName = "Table-" +tableIndex;
+        TaskContainer table = TaskContainer.builder()
+                .tableName(tableIndexName)
+                .projectId(project_id)
+                .build();
 
+        Task task = Task.builder()
+                .title("Task")
+                .description("Description")
+                .status("TODO")
+                .username(project.getUser().getFullName())
+                .projectName(project.getTitle()).build();
 
         tables.add(table);
         project.setTables(tables);
