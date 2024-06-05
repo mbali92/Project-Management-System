@@ -74,7 +74,7 @@ public class MemberServiceImpl implements MemberService {
 
             Member newMember = Member.builder()
                     .user_id(user.getUser_id())
-                    .project_id(project_id)
+                    .projectId(project_id)
                     .username(user.getUsername())
                     .projectRole(MEMBER)
                     .build();
@@ -137,6 +137,11 @@ public class MemberServiceImpl implements MemberService {
             // Handle case when member with given user_id is not found
             return null; // Or throw an exception, depending on your use case
         }
+    }
+
+    @Override
+    public List<Member> findMemberByProjectId(Integer projectId) {
+        return memberRepository.findByProjectId(projectId);
     }
 
 }

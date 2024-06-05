@@ -1,7 +1,6 @@
 package com.algoExpert.demo.Repository.Service.Impl;
 
 import com.algoExpert.demo.Admin.AdminEnums.FeatureType;
-import com.algoExpert.demo.Admin.Entity.FeatureUsage;
 import com.algoExpert.demo.Admin.Repository.FeatureUsageRepository;
 import com.algoExpert.demo.Admin.Repository.Service.FeatureService;
 import com.algoExpert.demo.Admin.Repository.Service.Impl.FeatureServiceImpl;
@@ -22,14 +21,14 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.time.LocalDate;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
 
 @Service
-@Slf4j
 public class ProjectServiceImpl implements ProjectService {
 
     @Autowired
@@ -70,14 +69,17 @@ public class ProjectServiceImpl implements ProjectService {
     @Transactional
     @Override
     public Integer createProject(Project project) throws InvalidArgument, MessagingException, IOException {
-
-
         // Find user by id
         User user = userRepository.findById(projectUser.loggedInUserId())
                 .orElseThrow(() -> new InvalidArgument("User with ID " + projectUser.loggedInUserId() + " not found"));
 
-        project.setUser(user);
-        project.setCreated_at(LocalDate.now());
+
+
+            DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("E dd MMM yyyy");
+            String formattedDate = LocalDateTime.now().format(myFormatObj);
+
+            project.setUser(user);
+            project.setCreatedDate(formattedDate);
 
         // Save the project and retrieve the saved instance
         Project savedProject = projectRepository.save(project);
@@ -92,7 +94,7 @@ public class ProjectServiceImpl implements ProjectService {
 
         Member newMember = Member.builder()
                 .user_id(user.getUser_id())
-                .project_id(savedProject.getProjectId())
+                .projectId(savedProject.getProjectId())
                 .username(user.getUsername())
                 .projectRole(OWNER)
                 .build();

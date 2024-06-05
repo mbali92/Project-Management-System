@@ -34,9 +34,13 @@ public class MemberController {
         return memberService.searchMemberToInvite(fullnameLetters);
     }
 
+    @GetMapping("/project/{projectId}")
+    public List<Member> findMemberByProjectId(@PathVariable Integer projectId){
+        return memberService.findMemberByProjectId(projectId);
+    }
+
     @GetMapping("/getMemberId/{user_id}")
     public Integer getMemberId(@PathVariable int user_id ){
         return memberService.findLoginMember(user_id);
     }
-
 }

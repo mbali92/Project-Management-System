@@ -26,7 +26,6 @@ import org.springframework.stereotype.Service;
 
 import java.util.List;
 import java.util.Objects;
-import java.util.Optional;
 import java.util.stream.Collectors;
 
 import static com.algoExpert.demo.AppUtils.AppConstants.*;
@@ -207,7 +206,7 @@ public class ProjectUserImpl implements ProjectUserService {
         // Filter members by user_id and map them to project ids
         List<Integer> userProjectIds = memberList.stream()
                 .filter(member -> member.getUser_id() == systemUser.getUser_id())
-                .map(Member::getProject_id) // Assuming you have a method getProject_id() in Member class
+                .map(Member::getProjectId) // Assuming you have a method getProject_id() in Member class
                 .collect(Collectors.toList());
 
         return projectRepository.findAllById(userProjectIds);
