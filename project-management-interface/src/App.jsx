@@ -26,7 +26,9 @@ function App() {
           <Route element={<Guide />} path="/help" exact />
           <Route element={<CreateProject />} path="/createProject" exact />
           <Route element={<ProjectSection />} path="/project" exact />
+          <Route element={<ProjectStats />} path="/projectStats" exact />
           <Route element={<AccountDeactivate />} path="/disable" exact />
+          <Route element={<SystemUsage />} path="/systemUsage" exact />     
           <Route element={<Home />} path="/home" exact />
           <Route path="/feedbackAdmin" element={<FeedbackAdmin />} />
           <Route path="/profileEditPage" element={<ProfileEditPage />} />

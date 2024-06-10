@@ -104,8 +104,8 @@ function Sidebar() {
           <div className='admin_dash' style={{display: userRole == "ADMIN" ? "block":"none"}}>
             <span className='sidebar-subtitle'>Adminstartion</span>
             <a href="users"><i className="lni lni-users"></i>Users</a>
-            <a href=""><i className="lni lni-briefcase-alt"></i>Project stats</a>
-            <a href=""><i className="lni lni-cogs"></i>System usage</a>
+            <a href="projectStats"><i className="lni lni-briefcase-alt"></i>Project stats</a>
+            <a href="systemUsage"><i className="lni lni-cogs"></i>System usage</a>
             <a href="" onClick={handleClick}><i className="lni lni-check-box"></i>Feedback</a>
           </div>
         </div>
