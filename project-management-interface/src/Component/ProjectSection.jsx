@@ -8,7 +8,6 @@ import nextIcon from "../assets/icons8-next.png";
 import previousIcon from "../assets/icons8-previous.png";
 function ProjectSection() {
   const [editedTask, seteditedTask] = useState({});
-  const [hiddenColumns, sethiddenColumns] = useState({ priority: "none" });
   const [projectMembers, setProjectMembers] = useState([]);
   const [users, setUsers] = useState(["Alex Smith"]);
   const [memberFound, setmemberFound] = useState([{}]);
@@ -38,6 +37,8 @@ function ProjectSection() {
     sort: 0,
     rowId: 0,
     statusIndex: 0,
+    priorityIndex:0,
+    priorityBox:0,
     table: 0,
     tableIndex: 0,
     commentBox: 0,
@@ -57,6 +58,10 @@ function ProjectSection() {
         tableId: 0,
         tableName: "New Table",
         projectId: 0,
+        hiddenTaskColumns: {
+          hiddenColumn_id: 1,
+          priority: true
+        },
         tasks: [
           {
             task_id: 0,
@@ -66,6 +71,8 @@ function ProjectSection() {
             start_date: "",
             end_date: "",
             status: "",
+            priority: "",
+            projectName: "Project one",
             comments: [],
             assignees: [],
           },
@@ -159,13 +166,15 @@ function ProjectSection() {
   };
   const sendEditedRow = async (task, updatedValue, columnType) => {
     if (task[columnType] !== updatedValue) {
-      if (columnType !== "status") {
+      if (columnType !== "status" || columnType !== "priority") {
         task[columnType] = updatedValue;
       }
-      if (columnType == "status") {
+      if (columnType == "status" ) {
         task.status = updatedValue;
       }
-
+      if (columnType == "priority") {
+        task.priority = updatedValue;
+      }
       try {
         const response = await axios.put(`http://localhost:8080/task/editTask`,task,
           {
@@ -267,12 +276,6 @@ function ProjectSection() {
     }
   };
 
-  const toogleHiddenColumns = (column) => {
-    sethiddenColumns((prevCol) => ({
-      ...prevCol,
-      [column]: "block",
-    }));
-  };
   const loadComments = (comments, taskid) => {
     settaskComments(comments);
     toogleDropDownBoxes("commentBox", 100, taskid, "commentTaskId");
@@ -322,6 +325,34 @@ function ProjectSection() {
   const goToPage = (page) => {
     setCurrentPage(page);
   };
+
+  const toogleHiddenColumns = async (tableId, hiddenCols, colType, btnType) => {
+
+    let changeColVisibility = false; 
+
+    if (btnType == "hide" && hiddenCols[colType]) {
+      hiddenCols[colType] = !hiddenCols[colType];
+      changeColVisibility = true;
+    }
+    if (btnType == "show" && !hiddenCols[colType]) {
+      hiddenCols[colType] = !hiddenCols[colType];
+      changeColVisibility = true;
+    }
+    if (changeColVisibility) {
+      try {
+          const response = await axios.put(`http://localhost:8080/table/updateHiddenColumns/${tableId}`,
+          hiddenCols,{ withCredentials: true }
+          );
+        if (response.data) {
+           setTrckChange(trackChange + 1)
+         }
+          
+        } catch (error) {
+          console.error("Error updating project:", error);
+      } 
+    }
+  }
+    
 
   /**
    * Calculates and returns an array of page numbers for pagination.
@@ -552,7 +583,7 @@ function ProjectSection() {
                         className="add-table-column"
                       >
                         <h6>Add extra table columns:</h6>
-                        <p onClick={() => toogleHiddenColumns("priority")}>
+                        <p onClick={() => toogleHiddenColumns(table.tableId,table.hiddenTaskColumns,"priority", "show")}>
                           <i className="lni lni-sort-alpha-asc"></i>
                           <span>Priority</span>
                         </p>
@@ -566,12 +597,8 @@ function ProjectSection() {
                       <span className="field_name col_name">start-date</span>
                       <span className="field_name col_name">end-date</span>
                       <span className="field_name col_name">status</span>
-                      <span
-                        style={{ display: hiddenColumns.priority }}
-                        className="field_name col_name"
-                      >
-                        Priority
-                      </span>
+                      <span style={{ display: table.hiddenTaskColumns.priority == true ? "block" : "none" }} className="field_name col_name"> Priority
+                        <i onClick={() => toogleHiddenColumns(table.tableId,table.hiddenTaskColumns,"priority", "hide")} className="fa fa-eye-slash" aria-hidden="true"></i></span>
                       <div
                         className="more  more-col"
                         onClick={() =>
@@ -696,6 +723,14 @@ function ProjectSection() {
                                     <span onClick={(e)=>sendEditedRow(task, e.target.innerText,'status')} id='TODO'>TODO</span>
                                     <span onClick={(e)=>sendEditedRow(task, e.target.innerText,'status')} id='INPROGRESS'>INPROGRESS</span>
                                 </div>
+                            </div>
+                          </div>
+                          <div onClick={() => toogleDropDownBoxes( "priorityBox",140,task.task_id,"priorityIndex")} style={{display:table.hiddenTaskColumns.priority == true ?"block":"none" }} id={task.priority} className="priority field_name table-task">
+                            {task.priority}
+                            <div className="priority_dropdown_content" style={{height: dropDownBoxesHeight.priorityIndex == task.task_id ? dropDownBoxesHeight.priorityBox: 0}}>
+                              <span onClick={(e)=>sendEditedRow(task, e.target.innerText,'priority')} id="HIGH">HIGH</span>
+                              <span onClick={(e)=>sendEditedRow(task, e.target.innerText,'priority')} id="LOW">LOW</span>
+                              <span onClick={(e)=>sendEditedRow(task, e.target.innerText,'priority')} id="MEDIUM">MEDIUM</span>
                             </div>
                           </div>
                           <div className="more"></div>

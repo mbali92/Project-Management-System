@@ -5,29 +5,29 @@ import { refreshToken } from "./RefreshToken";
 
 
 const PrivateRoutes = () => {
-  const [user, setUser] = useState();
-  const [redirect, setredirect] = useState();
+  const [user, setUser] = useState(null);
   
   useEffect(() => {
     const fetchData = async () => {
       try {
         const userFound = await refreshToken();
         setUser(userFound)
-        setredirect(userFound)
       } catch (error) {
-       console.error('Error fetching data:', error)
+        console.error('Error fetching data:', error)
+        setUser(false)
       }
     }
     fetchData();
+
     return () => {}
-   }, [user]);
+  }, []);
   
-  if(!redirect) {
-    return <p>loading...</p>;
+  if(!user) {
+    return null;
   }
     
   return(
-    user ? <Outlet/>:<Navigate to={"/"} />
+    user ? <Outlet/>:<Navigate to={"/login"} />
   );
 }
 export default PrivateRoutes;

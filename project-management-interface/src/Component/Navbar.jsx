@@ -12,6 +12,7 @@ function Navbar() {
   const [name, setName] = useState();
   const [logUser, setLogUser] = useState();
   const [userId, setUserId] = useState();
+  const [userNotifications, setuserNotifications] = useState([]);
 
   const [dropDownBoxesHeight, setDropDownBoxesHeight] = useState({
     statusBox: 0, addColumn: 0, columnIndex: 0, editRow: 0, inviteBox: 0,
@@ -23,6 +24,21 @@ function Navbar() {
     setSiteUser(JSON.parse(sessionStorage.getItem("systemUser")));
     const foundUser = (JSON.parse(sessionStorage.getItem("systemUser")));
     setLogUser(foundUser)
+
+    const getNotifications = async() => {
+      try {
+          const response = await axios.get(`http://localhost:8080/notification/getAll`, {
+          withCredentials:true
+          });
+          if(response.data) {
+          setuserNotifications(response.data)
+          }
+          } catch (error) {
+          console.error('Error fetching data:', error);
+        }
+       }
+       getNotifications();
+
     return () => {
     }
   }, []);
@@ -33,10 +49,6 @@ function Navbar() {
       [contentType]: dropDownBoxesHeight[contentType] === 0 ? height : 0,
       [indexType !== "" ? indexType : '']: rowIndex
     }));
-    const ame = siteUser.fullname
-    const letter = ame.charAt(0)
-    console.log(letter)
-    setName(letter)
   }
 
   const handleDeactivateAccount = (e) => {
@@ -67,7 +79,7 @@ function Navbar() {
       const response = await axios.delete("http://localhost:8080/user/logoutUser", {
         withCredentials:true
       })
-      if (response == "user logged out") {
+      if (response.data.message == "user logged out") {
         Cookies.remove('jwtToken')
         Cookies.remove("refreshToken")
         window.location.href = "/"
@@ -93,12 +105,10 @@ function Navbar() {
             <button id='input_search_btn'><i className="lni lni-search"></i></button></form>
           <div className="nav-right-bar">
             <div className="nav-icons">
-
-              <span id='not_length'>1</span>
-
+              <span id='not_length'>{ userNotifications.length}</span>
               <i className="lni lni-alarm" onClick={()=> setOpenProfile((prev)=> !prev)}></i>
                 {
-                    openProfile && <NotificationDropDown />
+                  userNotifications.length != 0 ?  openProfile && <NotificationDropDown userNot={userNotifications} />:""
                 }
             </div>
             <div className="profile" >

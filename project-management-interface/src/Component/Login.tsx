@@ -5,6 +5,7 @@ import axios from "axios";
 import { useForm } from "react-hook-form";
 import { jwtDecode } from "jwt-decode";
 import Cookies from "js-cookie";
+import { loginUserDetails } from "./LoginUserDetails";
 
 function Login() {
 
@@ -33,15 +34,7 @@ function Login() {
                 const response = await axios.post("http://localhost:8080/auth/loginUser",userDetails);
                 if (response.data.message == "Login Successful") {
                     setBadCredentials("none");
-                    const userDetails = { email: response.data.email,fullName: response.data.fullname, role: response.data.role}
-                    sessionStorage.setItem("systemUser", JSON.stringify(userDetails))
-                    Cookies.set('jwtToken', response.data.token, {
-                        path: '/', expires: 365 
-                    });
-                    Cookies.set('refreshToken', response.data.refreshToken,{
-                        path: '/',expires: 365 
-                    });
-                    window.location.href = "/home";
+                    loginUserDetails(response);
                 }
                 else {
                     setBadCredentials(response.data.message)

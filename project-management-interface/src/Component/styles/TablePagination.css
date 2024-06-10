@@ -70,17 +70,16 @@ select:focus {
 }
 
 .pagination button {
-    padding: 8px 12px;
-    font-size: 16px;
+    font-size: 13px;
     border: 1px #e3e3e3 solid;
-    color: #000000;
+    color: #fff;
     border-radius: 4px;
     cursor: pointer;
     display: flex;
     align-items: center;
     justify-content: center;
-    width: 2.8rem;
-    height: 2.8rem;
+    width: 2rem;
+    height: 2rem;
     margin: 0;
     padding: 0rem;
     border-radius: 50%; 

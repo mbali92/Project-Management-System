@@ -10,7 +10,8 @@ function Assign(props) {
            withCredentials:true
           });
           if(response.data) {
-            window.location.reload();
+            // window.location.reload();
+            console.log(response.data)
           }
           } catch (error) {
             console.error('Error fetching data:', error);

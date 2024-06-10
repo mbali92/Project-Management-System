@@ -24,7 +24,7 @@ function Home() {
     const loadProject =(project_id)=>{
     sessionStorage.setItem("projectId",project_id);
     window.location.href = "project";
-  }
+    }
 
   return (
       <>

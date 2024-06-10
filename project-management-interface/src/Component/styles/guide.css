@@ -1,9 +1,11 @@
 .guide-section{
     background-color: #fff;
-    height: 100vh;
+   
     margin: 15px auto;
+    position: relative;
     padding: 10px;
     font-family: 'Roboto', sans-serif;
+   
 }
 .Header_section{
     font-family: 'Roboto', sans-serif;

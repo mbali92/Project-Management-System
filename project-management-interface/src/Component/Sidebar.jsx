@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import logo from "../assets/logo.png";
 import axios from 'axios';
 import Cookies from 'js-cookie';
+import { refreshToken } from './RefreshToken';
 
 function Sidebar() {
   const [project, setProject] = useState([]);
@@ -11,24 +12,38 @@ function Sidebar() {
   const [projectLink, setprojectLink] = useState(0);
   const [showlinks, setshowlinks] = useState("none");
   const [userRole, setuserRole] = useState();
+  const sixHoursInMilliseconds = 6 * 60 * 60 * 1000; 
   
   const showActiveProjectPage = () => {
-    setactiveLink(window.location.href)
-
     if (window.location.href.includes("project")) {  
       setprojectLink(sessionStorage.getItem("projectId"))
       setshowlinks("block")
-    } 
+      } 
+     setactiveLink(window.location.href)
   }
 
   useEffect(() => { 
+     showActiveProjectPage();
+      const fiveHoursInMilliseconds = 5 * 60 * 60 * 1000; // 21,600,000 milliseconds
+
+    const refreshTokenInterval = async () => {
+      try {
+        await refreshToken();
+        console.log("Token refreshed successfully");
+      } catch (error) {
+        console.error("Failed to refresh token:", error);
+      }
+    };
+
+    const setCookiesInterval = setInterval(refreshTokenInterval,fiveHoursInMilliseconds)
+
     const systemUser = JSON.parse(sessionStorage.getItem("systemUser"));
     if (systemUser) {
       const foundRole = systemUser.role.filter(user => user == "USER" || user == "ADMIN")
       setuserRole(foundRole[0])
     }
-    showActiveProjectPage();
-    
+   
+    console.log(window.location.href)
     const fetchData = async () => {
       try {
         const response = await axios.get(`http://localhost:8080/user/fetchUserProject`, {
@@ -53,6 +68,7 @@ function Sidebar() {
       }
     };
     fetchData();
+    return ()=> clearInterval(setCookiesInterval)
   },[]);
   const loadProject =(projectId)=>{
     sessionStorage.setItem("projectId", projectId);
@@ -74,7 +90,7 @@ function Sidebar() {
   }
   const moveActive = (linkType, e) => {
     e.preventDefault();
-    window.location.href = "/" + linkType;
+    window.location.href = linkType;
     setshowlinks("none");
   } 
 
@@ -86,7 +102,7 @@ function Sidebar() {
         <div className="sidebar-links">
           <div  style={{ display: userRole == "USER" ? "block" : "none" }}>
               <span className='sidebar-subtitle'>dashboard</span>
-              <a href="" onClick={(e)=>moveActive("home",e)} className={activeLink.includes("home") ? "activelink" :""}><i className="lni lni-home"></i> Home </a>
+              <a href="" onClick={(e)=>moveActive("/",e)} className={activeLink == "http://localhost:5173/" ? "activelink" :""}><i className="lni lni-home"></i> Home </a>
               <a href="" className={activeLink == "project_page" ? "activelink" :""} onClick={(e)=>displayLinks(e)}>
                 <i className="lni lni-briefcase"></i>
                 User Projects
@@ -95,11 +111,11 @@ function Sidebar() {
             <div className="sub_links">
               {
                   project ? project.map((item,project_index)=>
-                    <p className={activeLink.includes("project") && projectLink == item.projectId ? "activelink" :""} style={{display:showlinks}}  key={project_index} onClick={()=>loadProject(item.projectId)}><span></span> {item.title} </p>
+                    <p className={activeLink.includes("/project") && projectLink == item.projectId ? "activelink" :""} style={{display:showlinks}}  key={project_index} onClick={()=>loadProject(item.projectId)}><span></span> {item.title} </p>
                   ):""
                 }
             </div> 
-            <a href="/" className={activeLink.includes("help") ? "activelink" :""} onClick={(e)=>moveActive("help",e)}><i id='info' className="lni lni-information"></i> Guide </a>
+            <a href="/" className={activeLink.includes("/help") ? "activelink" :""} onClick={(e)=>moveActive("help",e)}><i id='info' className="lni lni-information"></i> Guide </a>
           </div>
           <div className='admin_dash' style={{display: userRole == "ADMIN" ? "block":"none"}}>
             <span className='sidebar-subtitle'>Adminstartion</span>

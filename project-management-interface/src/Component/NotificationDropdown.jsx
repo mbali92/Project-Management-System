@@ -3,54 +3,27 @@ import imageOne from "../assets/topnav-image1.jpg";
 import { useState, useEffect } from "react";
 import axios from 'axios';
 
-function NotificationDropDown(){
-
-    const [data, setData] = useState([]);
-
-   useEffect(() => {
-       const getNotifications = async() => {
-            try {
-                const response = await axios.get(`http://localhost:8080/notification/getAll`, {
-                withCredentials:true
-                });
-                if(response.data) {
-                setData(response.data)
-                }
-                } catch (error) {
-                console.error('Error fetching data:', error);
-            }
-       }
-       getNotifications();
-
-       sessionStorage.setItem("notLength", data.length);
-   
-    return () => {
-        
-    }
-   }, []);
-    
+function NotificationDropDown({ userNot }) {
+    const [showTrue, setShowTrue] = useState(true);
 
 	// Marking the text as green if opened and red if not opned
-    const handleOpenMessage = (id) => {
-        setData(prevData => {
-            return prevData.map(item => {
-                if (item.Id === id) {
-                    return { ...item, opened: !item.opened };
-                } else {
-                    return item;
-                }
-            });
-        });
-    };
+    // const handleOpenMessage = (id) => {
+    //     setData(prevData => {
+    //         return prevData.map(item => {
+    //             if (item.Id === id) {
+    //                 return { ...item, opened: !item.opened };
+    //             } else {
+    //                 return item;
+    //             }
+    //         });
+    //     });
+    // };
 
-
-    //filtering if is opened or not
-    const [showTrue, setShowTrue] = useState(true);
-    
-    const handleCheckedBoxChange =() =>{
+    const handleCheckedBoxChange = () =>{
         setShowTrue(!showTrue)
     }
-    const filteredItems = data.filter(item =>
+
+    const filteredItems = userNot.filter(item =>
         item
         // item.opened === showTrue
     );
@@ -63,10 +36,7 @@ function NotificationDropDown(){
                 </div>
                 <div className="header-icons">
                     <label className="switch">
-                        <input type="checkbox" 
-                        checked={showTrue}
-                        onChange={handleCheckedBoxChange}
-                        />
+                        <input type="checkbox" checked={showTrue} onChange={handleCheckedBoxChange}/>
                         <span className="slider"></span>
                     </label>
                 </div>
