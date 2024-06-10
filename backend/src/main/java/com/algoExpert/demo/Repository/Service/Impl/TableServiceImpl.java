@@ -1,5 +1,8 @@
 package com.algoExpert.demo.Repository.Service.Impl;
 
+import com.algoExpert.demo.Admin.AdminEnums.FeatureType;
+import com.algoExpert.demo.Admin.Repository.Service.FeatureService;
+import com.algoExpert.demo.Admin.Repository.Service.Impl.FeatureServiceImpl;
 import com.algoExpert.demo.Dto.ProjectDto;
 import com.algoExpert.demo.Entity.*;
 import com.algoExpert.demo.ExceptionHandler.InvalidArgument;
@@ -41,7 +44,12 @@ public class TableServiceImpl implements TableService {
     @Autowired
     ProjectMapper projectMapper;
 
+
+    @Autowired
+    FeatureService featureService;
+
     //  create a new table
+    @Transactional
     @Override
     public ProjectDto createTable(int project_id) throws InvalidArgument {
         Project project = projectRepository.findById(project_id).orElseThrow(() -> new InvalidArgument(String.format(PROJECT_NOT_FOUND,project_id)));
@@ -65,8 +73,16 @@ public class TableServiceImpl implements TableService {
                 .title("Task")
                 .description("Description")
                 .status("TODO")
+                .start_date(" ")
+                .end_date(" ")
                 .username(project.getUser().getFullName())
                 .projectName(project.getTitle()).build();
+
+        FeatureType[] featureTypesToUpdate1 = {FeatureType.CREATE_TABLE};
+        for (FeatureType featureType : featureTypesToUpdate1) {
+            featureService.updateFeatureCount(featureType);
+        }
+
 
         tables.add(table);
         project.setTables(tables);

@@ -19,7 +19,7 @@ public class FeatureUsage {
     private Integer id;
 
     @Enumerated(EnumType.STRING)
-
+    @Column(length = 100)
     private FeatureType featureType;
 
     private Long usageCount;

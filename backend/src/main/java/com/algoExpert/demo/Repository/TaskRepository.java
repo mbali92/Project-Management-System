@@ -12,4 +12,7 @@ public interface TaskRepository extends JpaRepository<Task, Integer> {
     @Query("SELECT t FROM Task t WHERE t.end_date = ?1 AND t.status!= ?2")
     List<Task> findTasksDueDate(String dueDay, String status);
 
+    @Query("SELECT COUNT(t) FROM Task t")
+    Integer countTasks();
+
 }

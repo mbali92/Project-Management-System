@@ -19,6 +19,6 @@ public interface MemberService {
     List<Member> getAllMembers();
 
     List<User>searchMemberToInvite(String fullnameLetters);
-
     Integer findLoginMember(int user_id);
+    List<Member> findMemberByProjectId(Integer projectId);
 }

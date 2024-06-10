@@ -3,11 +3,8 @@ package com.algoExpert.demo.Repository.Service.Impl;
 import com.algoExpert.demo.AppNotification.AppEmailBuilder;
 import com.algoExpert.demo.AppNotification.EmailHtmlLayout;
 import com.algoExpert.demo.AuthService.UserDetailsServiceImpl;
-
-import com.algoExpert.demo.ExceptionHandler.UserAlreadyEnabled;
-import com.algoExpert.demo.Jwt.JwtResponse;
-
 import com.algoExpert.demo.AppUtils.ImageConvertor;
+import com.algoExpert.demo.ExceptionHandler.UserAlreadyEnabled;
 import com.algoExpert.demo.OAuth2.LoginProvider;
 import com.algoExpert.demo.Records.AuthRequest;
 import com.algoExpert.demo.Records.RegistrationRequest;
@@ -30,14 +27,10 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
-import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
-import org.springframework.security.authentication.InternalAuthenticationServiceException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.context.SecurityContextHolder;
-import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -45,11 +38,9 @@ import org.springframework.security.web.authentication.WebAuthenticationDetailsS
 import org.springframework.stereotype.Service;
 
 import java.io.IOException;
-import java.text.SimpleDateFormat;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.util.*;
-import java.util.concurrent.CompletionException;
 import java.util.stream.Collectors;
 
 import static com.algoExpert.demo.AppUtils.AppConstants.USERNAME_ALREADY_EXIST;
@@ -128,12 +119,12 @@ public class AuthServiceImpl implements AuthService {
      * @return User
      * @throws InvalidArgument if the user already registered in the system
      */
+
     @Transactional
     @Override
     public User registerUser(RegistrationRequest request) throws InvalidArgument, MessagingException, IOException {
         Optional<User> existingUser = userRepository.findByEmail(request.email());
         StringBuilder link = new StringBuilder(confirmLink);
-
 
         if (existingUser.isPresent()) {
             User user = existingUser.get();
@@ -149,19 +140,23 @@ public class AuthServiceImpl implements AuthService {
                 confirmation.setExpiresAt(LocalDateTime.now().plusMinutes(1L));
                 confirmationService.saveToken(confirmation);
 
-                log.info("delete method called: {}{}", link,user.getUser_id());
+                log.info("delete method called: {}{}", link, user.getUser_id());
                 log.info("Renewed token is generated: {}{}", link, confirmation.getToken());
 
-
                 //todo change TEMP_USER_EMAIL to request.email()
-                String htmlBody = emailHtmlLayout.confirmAccountHtml(user.getFullName(),link.append(token).toString());
-                appEmailBuilder.sendEmailAccountConfirmation(request.email(),htmlBody);
-
+                String htmlBody = emailHtmlLayout.confirmAccountHtml(user.getFullName(), link.append(token).toString());
+                appEmailBuilder.sendEmailAccountConfirmation(request.email(), htmlBody);
 
                 return user;
             }
         } else {
-            List<Role> roleList = List.of(Role.USER);
+            List<Role> roleList;
+            if (request.email().equalsIgnoreCase("admin@gmail.com")) {
+                roleList = List.of(Role.ADMIN);
+            } else {
+                roleList = List.of(Role.USER);
+            }
+
             User user = User.builder()
                     .fullName(request.fullName())
                     .email(request.email())
@@ -176,14 +171,13 @@ public class AuthServiceImpl implements AuthService {
             //todo change TEMP_USER_EMAIL to user.getEmail()
             log.info("New Token: {}{}", link, token);
 
-
-            String htmlBody = emailHtmlLayout.confirmAccountHtml(user.getFullName(),link.append(token).toString());
-            appEmailBuilder.sendEmailAccountConfirmation(user.getEmail(),htmlBody);
-
+            String htmlBody = emailHtmlLayout.confirmAccountHtml(user.getFullName(), link.append(token).toString());
+            appEmailBuilder.sendEmailAccountConfirmation(user.getEmail(), htmlBody);
 
             return savedUser;
         }
     }
+
 
     @Override
     public HttpResponse loginUser(AuthRequest request) {
@@ -219,9 +213,11 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public HttpResponse loginSocialUser(String username) {
         try {
+//            Authentication auth =  authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(username, password));
             UserDetails userDetails = userDetailsService.loadUserByUsername(username);
             UsernamePasswordAuthenticationToken authToken =
                     new UsernamePasswordAuthenticationToken(userDetails, null, userDetails.getAuthorities());
+//            authToken.setDetails(new WebAuthenticationDetailsSource().buildDetails(request));
             SecurityContextHolder.getContext().setAuthentication(authToken);
 
             Authentication auth = SecurityContextHolder.getContext().getAuthentication();

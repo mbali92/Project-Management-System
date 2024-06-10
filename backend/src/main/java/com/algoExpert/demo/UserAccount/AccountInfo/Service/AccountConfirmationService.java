@@ -11,6 +11,10 @@ import java.time.LocalDateTime;
 public interface AccountConfirmationService {
 
     String activateAccount(String token) throws InvalidArgument;
+
+    public String deactivateAccount(Integer userId);
+
+    public String activateAccount(Integer userId);
     void saveToken(AccountConfirmation confirmation);
      String createToken(User user);
     void deleteToken(AccountConfirmation confirmation);

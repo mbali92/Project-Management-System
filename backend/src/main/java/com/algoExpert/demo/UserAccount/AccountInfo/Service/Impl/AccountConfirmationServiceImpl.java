@@ -15,6 +15,7 @@ import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.util.Optional;
 import java.util.UUID;
 
 import static com.algoExpert.demo.AppUtils.AppConstants.TOKEN_NOT_FOUND;
@@ -57,12 +58,48 @@ public class AccountConfirmationServiceImpl implements AccountConfirmationServic
            return "Token Expired Please Check Your Email To Confirm!";
        }
 
+
+
        user.setEnabled(true);
        user.setDateRegistered(LocalDate.now());
         userRepository.save(user);
         confirmation.setConfirmAt(LocalDateTime.now());
         saveToken(confirmation);
         return "Account Activated Successful,Click The Button Below To Login.";
+    }
+
+    @Override
+    public String deactivateAccount(Integer userId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            if (!user.isEnabled()) {
+                return "Account is already deactivated.";
+            }
+
+            user.setEnabled(false);
+            userRepository.save(user);
+            return "Account deactivated successfully.";
+        } else {
+            return "User not found.";
+        }
+    }
+
+    @Override
+    public String activateAccount(Integer userId) {
+        Optional<User> userOptional = userRepository.findById(userId);
+        if (userOptional.isPresent()) {
+            User user = userOptional.get();
+            if (user.isEnabled()) {
+                return "Account is already activated.";
+            }
+
+            user.setEnabled(true);
+            userRepository.save(user);
+            return "Account activated successfully.";
+        } else {
+            return "User not found.";
+        }
     }
 
     @Override

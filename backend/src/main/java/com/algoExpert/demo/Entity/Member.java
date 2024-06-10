@@ -18,7 +18,7 @@ public class Member {
 
     private Integer user_id;
 
-    private Integer project_id;
+    private Integer projectId;
 
     private String username;
 

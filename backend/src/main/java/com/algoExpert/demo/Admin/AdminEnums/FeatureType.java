@@ -1,12 +1,10 @@
 package com.algoExpert.demo.Admin.AdminEnums;
-
-public enum FeatureType {
-
-     SEARCH
-    ,SORT //future feature
-    ,INVITE_MEMBER
-    ,ASSIGN_TASK
-    ,COMMENT
-    ,SEND_EMAIL  //future feature
-    ,FILE_ATTACHMENT   //future feature
+public enum FeatureType  {
+    CREATE_PROJECT,CREATE_TABLE,CREATE_TASK,
+    DELETE_TASK,
+    SEARCH,SORT ,INVITE_MEMBER,ASSIGN_TASK,COMMENT
+    ,SEND_EMAIL,FILE_ATTACHMENT,
+    DUPLICATE,
+    DELETE_PROJECT,
+    DELETE_TABLE
 }
