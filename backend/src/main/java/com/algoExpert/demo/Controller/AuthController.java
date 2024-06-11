@@ -75,6 +75,10 @@ public class AuthController {
     public RedirectView passwordChangePage(@RequestParam("token") String token){
         return new RedirectView("http://localhost:5173/privacy?token=" + token);
     }
+    @GetMapping("/refreshTokenLogin/{refreshToken}")
+    public JwtResponse refreshTokenLogin(@PathVariable String refreshToken){
+        return authService.refreshTokenLogin(String.format(refreshToken));
+    }
 
     @PostMapping("/changeForgotPassword/{token}/{newPassword}")
     public String changeForgotPassword(@PathVariable String token, @PathVariable String newPassword){

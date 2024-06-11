@@ -1,17 +1,21 @@
 package com.algoExpert.demo.Repository.Service.Impl;
 
+import com.algoExpert.demo.Entity.HttpResponse;
 import com.algoExpert.demo.Entity.RefreshToken;
 import com.algoExpert.demo.Entity.User;
+import com.algoExpert.demo.ExceptionHandler.InvalidArgument;
 import com.algoExpert.demo.Repository.RefreshTokenRepository;
 import com.algoExpert.demo.Repository.Service.RefreshTokenInt;
 import com.algoExpert.demo.Repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UsernameNotFoundException;
 import org.springframework.stereotype.Service;
 
 import java.time.Instant;
+import java.time.temporal.ChronoUnit;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -26,52 +30,14 @@ public class RefreshTokenSevice implements RefreshTokenInt {
 
 //    method to create refresh token
     public RefreshToken createRefreshToken(String username){
-        User user = userRepository.findByEmail(username).get();
-        Optional <RefreshToken> refreshTokenUser = refreshTokenRepository.findTokenByUserId(user.getUser_id());
-        Boolean recordDeleted = false;
+        User user = userRepository.findByUsername(username).orElseThrow(()-> new InvalidArgument("Token not found"));;
 
-        if(refreshTokenUser.isPresent() && refreshTokenUser.get().getExpiryDate().isBefore(Instant.now())){
-                refreshTokenRepository.delete(refreshTokenUser.get());
-                recordDeleted = true;
-        }
-
-        if(refreshTokenUser.isEmpty() || recordDeleted){
-            RefreshToken refreshToken =  RefreshToken.builder()
-                    .user(user)
-                    .token(UUID.randomUUID().toString())
-                    .expiryDate(Instant.now().plusMillis(600000))
-                    .build();
-            return refreshTokenRepository.save(refreshToken);
-        }
-        return refreshTokenUser.get();
-    }
-
-    public RefreshToken createRefreshToken2(String username) {
-        User user = userRepository.findByUsername(username)
-                .orElseThrow(() -> new UsernameNotFoundException("User not found: " + username));
-        Optional<RefreshToken> existingRefreshToken = refreshTokenRepository.findTokenByUserId(user.getUser_id());
-        boolean shouldCreateNewToken = false;
-
-        if (existingRefreshToken.isPresent()) {
-            RefreshToken refreshToken = existingRefreshToken.get();
-            if (refreshToken.getExpiryDate().isBefore(Instant.now())) {
-                refreshTokenRepository.delete(refreshToken);
-                shouldCreateNewToken = true;
-            }
-        } else {
-            shouldCreateNewToken = true;
-        }
-
-        if (shouldCreateNewToken) {
-            RefreshToken newRefreshToken = RefreshToken.builder()
-                    .user(user)
-                    .token(UUID.randomUUID().toString())
-                    .expiryDate(Instant.now().plusMillis(600000)) // 10 minutes expiry time
-                    .build();
-            return refreshTokenRepository.save(newRefreshToken);
-        } else {
-            return existingRefreshToken.get();
-        }
+        RefreshToken refreshToken =  RefreshToken.builder()
+                .user(user)
+                .token(UUID.randomUUID().toString())
+                .expiryDate(Instant.now().plus(365, ChronoUnit.DAYS))
+                .build();
+        return refreshTokenRepository.save(refreshToken);
     }
 
     public RefreshToken verifyExpiration(RefreshToken token){
@@ -83,7 +49,7 @@ public class RefreshTokenSevice implements RefreshTokenInt {
     }
 
     @Override
-    public Boolean userLogout() {
+    public HttpResponse userLogout() {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         if (authentication != null && authentication.isAuthenticated()) {
             // Get the principal (authenticated user)
@@ -92,9 +58,14 @@ public class RefreshTokenSevice implements RefreshTokenInt {
 
             if(refreshTokenUser.isPresent()){
                 refreshTokenRepository.delete(refreshTokenUser.get());
-                return true;
+                return HttpResponse.builder()
+                        .status(HttpStatus.OK)
+                        .message("user logged out")
+                        .build();
             }
         }
-        return false;
+        return HttpResponse.builder()
+                .message("could not logout")
+                .build();
     }
 }

@@ -126,7 +126,6 @@ public class AppUserService implements UserService  {
     public void createUser(AppUser user){
 //        create user if not exist
         User userEntity = saveUserIfNotExists(user);
-        userNotificationService.createNotification(userEntity, "user account created ");
         userEntityRepository.save(userEntity);
     }
 

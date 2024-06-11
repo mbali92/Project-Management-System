@@ -17,11 +17,8 @@ public interface ProjectUserService {
     Project findProject(int project_id) throws InvalidArgument, InternalAuthenticationServiceException;
     Integer loggedInUserId();
     List<Project> getUserProjectIds();
-    JwtResponse refreshJwtToken(String RefreshTokenRequest);
     Page<User> getUsersWithPagination(int offset, int pageSize);
     ResponseEntity<Project> getProjectWithSortedAndSearchedTables(int projectId, int page, int size, String search, String sortField, String sortDirection);
     String sendUserFeedback(Feedback userFeedback);
-
-
 
 }

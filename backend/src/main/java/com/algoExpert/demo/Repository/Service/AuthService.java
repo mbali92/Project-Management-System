@@ -33,4 +33,7 @@ public interface AuthService {
 
     String forgotPasswordChange(String token, String newPassword);
 
+    JwtResponse refreshTokenLogin(String refreshToken);
+
+
 }

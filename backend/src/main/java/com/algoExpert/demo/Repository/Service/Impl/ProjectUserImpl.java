@@ -129,23 +129,6 @@ public class ProjectUserImpl implements ProjectUserService {
         return ResponseEntity.ok(foundProject);
     }
 
-
-
-    @Override
-    public JwtResponse refreshJwtToken(String refreshTokenRequest){
-        return  refreshTokenRepository.findByToken(refreshTokenRequest)
-                .map(RefreshToken::getUser)
-                .map(user -> {
-                    String accessToken = jwtService.generateToken(user.getUsername());
-                    String refreshToken = refreshTokenSevice.createRefreshToken(user.getUsername()).getToken();
-                    return  JwtResponse.builder()
-                            .jwtToken(accessToken)
-                            .refreshToken(refreshToken).build();
-                }).orElseThrow(() ->new RuntimeException(
-                        "Refresh token is not in database"
-                ));
-    }
-
     @Override
     public Page<User> getUsersWithPagination(int offset, int pageSize) {
         return userRepository.findAll(PageRequest.of(offset,pageSize));
@@ -221,15 +204,6 @@ public class ProjectUserImpl implements ProjectUserService {
             return "feedback could not be saved" + e;
         }
     }
-
-
-
-//    @Override
-//    public User getUserById(int userId) {
-//        return userRepository.findById(userId).orElseThrow();
-//    }
-
-
 
 
 }

@@ -4,7 +4,9 @@ import com.algoExpert.demo.AppNotification.AppEmailBuilder;
 import com.algoExpert.demo.AppNotification.EmailHtmlLayout;
 import com.algoExpert.demo.AuthService.UserDetailsServiceImpl;
 import com.algoExpert.demo.AppUtils.ImageConvertor;
+import com.algoExpert.demo.Entity.RefreshToken;
 import com.algoExpert.demo.ExceptionHandler.UserAlreadyEnabled;
+import com.algoExpert.demo.Jwt.JwtResponse;
 import com.algoExpert.demo.OAuth2.LoginProvider;
 import com.algoExpert.demo.Records.AuthRequest;
 import com.algoExpert.demo.Records.RegistrationRequest;
@@ -13,6 +15,7 @@ import com.algoExpert.demo.Entity.HttpResponse;
 import com.algoExpert.demo.Entity.User;
 import com.algoExpert.demo.ExceptionHandler.InvalidArgument;
 import com.algoExpert.demo.Jwt.JwtService;
+import com.algoExpert.demo.Repository.RefreshTokenRepository;
 import com.algoExpert.demo.Repository.Service.AuthService;
 import com.algoExpert.demo.Repository.UserRepository;
 import com.algoExpert.demo.UserAccount.AccountInfo.Entity.AccountConfirmation;
@@ -55,7 +58,7 @@ public class AuthServiceImpl implements AuthService {
     private JwtService jwtService;
 
     @Autowired
-    AuthenticationManager authenticationManager;
+    private AuthenticationManager authenticationManager;
 
     @Autowired
     private AccountConfirmationService confirmationService;
@@ -79,6 +82,8 @@ public class AuthServiceImpl implements AuthService {
 
     @Autowired
     private PasswordResetRepository passwordResetRepository;
+    @Autowired
+    private RefreshTokenRepository tokenRepository;
 
 
 
@@ -182,7 +187,7 @@ public class AuthServiceImpl implements AuthService {
     @Override
     public HttpResponse loginUser(AuthRequest request) {
 
-            Authentication auth =  authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
+         try{   Authentication auth =  authenticationManager.authenticate(new UsernamePasswordAuthenticationToken(request.email(), request.password()));
             User authenticatedUser = null;
             String jwtToken = "";
             String refreshToken = "";
@@ -207,6 +212,19 @@ public class AuthServiceImpl implements AuthService {
                 .fullname(authenticatedUser.getFullName())
                 .statusCode(HttpStatus.OK.value())
                 .build();
+         }catch (BadCredentialsException e) {
+             return HttpResponse.builder()
+                     .timeStamp(LocalTime.now().toString())
+                     .message("Incorrect username or password")
+                     .build();
+         } catch (Exception e) {
+             return HttpResponse.builder()
+                     .timeStamp(LocalTime.now().toString())
+                     .message("Login failed: " + e.getMessage())
+                     .status(HttpStatus.UNAUTHORIZED)
+                     .statusCode(HttpStatus.UNAUTHORIZED.value())
+                     .build();
+         }
 
     }
 
@@ -229,7 +247,7 @@ public class AuthServiceImpl implements AuthService {
             if(auth != null  && auth.isAuthenticated()){
                 loggedUser = (User) auth.getPrincipal();
                 jwtToken = jwtService.generateToken(username);
-                refreshToken = refreshTokenSevice.createRefreshToken2(username).getToken();
+                refreshToken = refreshTokenSevice.createRefreshToken(username).getToken();
             }
 
             return HttpResponse.builder()
@@ -295,10 +313,29 @@ public class AuthServiceImpl implements AuthService {
         }
     }
 
-//    public List<User> deleteUser(int userId){
-//        userRepository.deleteById(userId);
-//        return userRepository.findAll();
-//    }
+    @Override
+    public JwtResponse refreshTokenLogin(String refreshToken) {
+        RefreshToken refreshTokenfound  =  tokenRepository.findByToken(refreshToken).orElseThrow(()-> new InvalidArgument("Token not found"));
+        User projectUser = null;
+
+        if(refreshTokenfound != null){
+            projectUser = refreshTokenfound.getUser();
+            String jwtToken =  jwtService.generateToken(projectUser.getUsername());
+
+            if(jwtToken != null){
+                return JwtResponse.builder()
+                        .jwtToken(jwtToken)
+                        .refreshToken(refreshTokenfound.getToken())
+                        .responseMessage("SUCCESS")
+                        .fullname(projectUser.getFullName())
+                        .email(projectUser.getUsername())
+                        .role(projectUser.getRoles()).
+                        build();
+            }
+        }
+        return JwtResponse.builder().responseMessage("Could not generate jwtToken").build();
+    }
+
 
 
 }
