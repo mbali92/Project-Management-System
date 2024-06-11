@@ -19,9 +19,9 @@ public class TaskContainer {
     private int tableId;
     private String tableName;
     private int projectId;
-
+    @OneToOne(cascade = CascadeType.ALL,fetch = FetchType.EAGER)
+    private HiddenTaskColumns hiddenTaskColumns;
     @OneToMany( cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Task> tasks;
-
 
 }
